@@ -1,70 +1,47 @@
 # Bifrost Plugin Development
 
-A native Go plugin (`.so` shared object) for the Bifrost LLM gateway, built as a reference implementation demonstrating the Bifrost plugin architecture.
+An **agent skill** that teaches an agent how to build a [Bifrost](https://github.com/maximhq/bifrost) gateway
+plugin. The repository is the skill; the deliverable is `SKILL.md`. A complete, tested example plugin ships
+alongside it under `assets/example-plugin/`.
 
-## Overview
+## Installing this skill
 
-This plugin demonstrates all Bifrost hook types:
-- **HTTP Transport hooks**: `HTTPTransportPreHook`, `HTTPTransportPostHook`, `HTTPTransportStreamChunkHook`
-- **Core lifecycle hooks**: `PreRequestHook`, `PreLLMHook`, `PostLLMHook`
-- **Plugin lifecycle**: `Init`, `GetName`, `Cleanup`
-
-## Building
+Drop this repository into your skills directory. Copy it, or symlink it so edits stay in sync:
 
 ```bash
-# Requires Go 1.26+ (matching Bifrost's Go version)
-# Requires CGO_ENABLED=1
-# A native .so plugin must match the host Bifrost binary's OS, arch, and Go version.
+# Option A — copy
+cp -r . ~/.agents/skills/bifrost-plugin-development
 
-make dev        # development build -> build/bifrost-plugin-development.so
-make build      # optimized build  -> build/bifrost-plugin-development.so
+# Option B — symlink (edit in place)
+ln -s "$(pwd)" ~/.agents/skills/bifrost-plugin-development
 ```
 
-Or build directly, outputting to the same `build/` directory the Makefile uses:
+The skill's name is `bifrost-plugin-development`. Once installed, an agent asked to build, extend, or debug a
+Bifrost plugin will load `SKILL.md`.
+
+## Layout
+
+| Path | What it is |
+| --- | --- |
+| `SKILL.md` | The skill: frontmatter (`name`, `description`) + the teaching body |
+| `references/` | On-demand detail: architecture, hooks, lifecycle/config, versioning, gotchas, official docs |
+| `assets/example-plugin/` | A complete, tested Go plugin module — the starter the skill tells agents to copy |
+| `CONTEXT.md` | Glossary of this repo's domain language |
+| `docs/adr/` | Architecture decision records |
+| `docs/agents/` | Configuration consumed by the engineering skills |
+
+## The bundled example plugin
+
+`assets/example-plugin/` is a real Go module (`github.com/datamathcode/bifrost-plugin-development`) pinned to
+`bifrost/core v1.6.3`. Run Go commands from inside it:
 
 ```bash
-go mod tidy
-mkdir -p build
-CGO_ENABLED=1 go build -buildmode=plugin -o build/bifrost-plugin-development.so main.go
+cd assets/example-plugin
+make build     # -> build/bifrost-plugin-development.so
+go test ./...  # hook tests + compile-time signature guards
 ```
 
-## Configuration
-
-Add to your Bifrost `config.json`:
-
-```json
-{
-  "plugins": [
-    {
-      "name": "bifrost-plugin-development",
-      "enabled": true,
-      "path": "/path/to/bifrost-plugin-development.so",
-      "config": {}
-    }
-  ]
-}
-```
-
-## Requirements
-
-- Bifrost built with dynamic linking (`make build DYNAMIC=1`)
-- Linux or macOS (Darwin) - no Windows support
-- Same Go version as Bifrost binary
-- Same architecture (amd64/arm64) as Bifrost binary
-
-## Hook Execution Order
-
-1. `HTTPTransportPreHook` - HTTP only, before Bifrost core
-2. `PreRequestHook` - Once per request, routing decisions
-3. `PreLLMHook` - Per provider attempt, before provider call
-4. Provider call
-5. `PostLLMHook` - Per provider attempt, after provider call (reverse order)
-6. `HTTPTransportPostHook` - HTTP only, after Bifrost core (reverse order)
-7. `HTTPTransportStreamChunkHook` - Per streaming chunk (HTTP only)
-
-## Context Passing
-
-Hooks share state via `BifrostContext.SetValue()` and `BifrostContext.Value()` using typed constants as keys to avoid collisions.
+See `assets/example-plugin/README.md` for build, configuration, and hook-ordering details.
 
 ## License
 
