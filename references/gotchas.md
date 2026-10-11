@@ -18,6 +18,10 @@ Hard-won traps when writing native Bifrost plugins. Pinned to `core v1.6.3`.
   strictly-earlier phase wrote.
 - **`HTTPTransportPostHook` is skipped for streaming**; only `HTTPTransportStreamChunkHook` sees streamed
   chunks. Don't put non-streaming response logic in the only hook that never runs for streams.
+- **Auth ordering is defined by the transport, not core, and it changed in v2.0.** On the pinned v1.6.x line
+  `HTTPTransportPreHook` runs *before* authentication (it is the credential seam); v2.0 adds the dedicated
+  `HTTPTransportPreAuthHook` and moves `HTTPTransportPreHook` to *after* auth. The live docs describe the v2.0
+  arrangement — don't carry it back to a v1.6.x host. Verify against the transport version you actually run.
 - **HTTP transport hooks don't run under the Go SDK.** If the plugin must work both ways, don't rely on them.
 - **Per-attempt vs per-request.** `PreLLMHook`/`PostLLMHook` run again on every fallback; `PreRequestHook` is
   the only phase whose provider/model mutations stick. Put routing in `PreRequestHook`.

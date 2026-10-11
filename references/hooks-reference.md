@@ -26,7 +26,10 @@ func HTTPTransportStreamChunkHook(ctx *schemas.BifrostContext, req *schemas.HTTP
 (response).
 
 - `HTTPTransportPreHook` — mutate `req.Headers` / `Body` / `Query` in place. Return `(nil, nil)` to continue,
-  `(*HTTPResponse, nil)` to short-circuit, `(nil, error)` to fail.
+  `(*HTTPResponse, nil)` to short-circuit, `(nil, error)` to fail. **On the pinned v1.6.x line this runs
+  *before* authentication** — it is the credential / pre-auth seam. From v2.0 the dedicated
+  `HTTPTransportPreAuthHook` takes that position and this hook moves to *after* auth. In that case a short-circuit
+  reply is `&schemas.HTTPResponse{StatusCode: 403}`.
 - `HTTPTransportPostHook` — mutate `resp` in place. Return `nil` to continue, an `error` to stop remaining
   post-hooks. **Not called for streaming responses.**
 - `HTTPTransportStreamChunkHook` — return `(chunk, nil)` unchanged, `(nil, nil)` to drop the chunk, a modified

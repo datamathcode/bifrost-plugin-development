@@ -29,7 +29,7 @@ A plugin is `package main` with **package-level functions**. The loader resolves
 | `GetName() string` | **required** | Unique plugin name; must match `name` in `config.json` |
 | `Cleanup() error` | **required** | Release resources on shutdown |
 | `Init(config any) error` | optional | Receive config from `config.json` at load |
-| `HTTPTransportPreHook` | optional | HTTP transport: before core, after auth |
+| `HTTPTransportPreHook` | optional | HTTP transport: before core; on v1.6.x this runs *before* auth |
 | `HTTPTransportPostHook` | optional | HTTP transport: after core (**not** for streaming) |
 | `HTTPTransportStreamChunkHook` | optional | HTTP transport: per streaming chunk |
 | `PreRequestHook` | optional | Once per request: routing (provider/model/fallbacks) |
