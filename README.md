@@ -25,7 +25,8 @@ Bifrost plugin will load `SKILL.md`.
 | --- | --- |
 | `SKILL.md` | The skill: frontmatter (`name`, `description`) + the teaching body |
 | `references/` | On-demand detail: architecture, hooks, lifecycle/config, versioning, gotchas, official docs |
-| `assets/example-plugin/` | A complete, tested Go plugin module — the starter the skill tells agents to copy |
+| `assets/example-plugin/` | A minimal, tested Go plugin module — the starter the skill tells agents to copy |
+| `assets/redactor-plugin/` | A second worked example: request/response/streaming secret redaction |
 | `CONTEXT.md` | Glossary of this repo's domain language |
 | `docs/adr/` | Architecture decision records |
 | `docs/agents/` | Configuration consumed by the engineering skills |

@@ -2,7 +2,7 @@
 
 Validation prompts for the `bifrost-plugin-development` skill, in the [`skill-creator`](../../) eval format.
 
-`evals.json` defines four prompts:
+`evals.json` defines five prompts:
 
 1. **scaffold-plugin** — scaffold a buildable plugin that adds a request header and logs token usage. Tests the
    required shape (`package main`, package-level symbols, `-buildmode=plugin`) and the host-parity caveat.
@@ -13,6 +13,8 @@ Validation prompts for the `bifrost-plugin-development` skill, in the [`skill-cr
    `HTTPTransportPreAuthHook` (v2.0+); the correct answer for the pin is `HTTPTransportPreHook`.
 4. **debug-nonobvious-traps** — three non-obvious outcomes at once: the `HTTPTransportPostHook`-after-
    `PostLLMHook` context trap, the `(nil, nil)` drop-chunk signal, and Go-version host parity.
+5. **redaction-hooks-and-streaming-trap** — which hooks redact request / response / stream, and why per-chunk
+   streaming redaction leaks a secret split across chunk boundaries.
 
 ## Running them
 
@@ -33,6 +35,7 @@ Run outputs live outside the repo, in `<skill>-workspace/`, not here — only th
 | 2 | 18/19 | 18/19 | +0.00 | Added the trap eval; **found a real skill defect** |
 | 3 | 4/4 | 4/4 | +0.00 | Targeted non-obvious probe |
 | 4 | 100% | 16.7% | **+0.83** | **Air-gapped** — web + module cache denied to both |
+| 5 | 100% | 100% | +0.00 | Redaction eval (`redaction-hooks-and-streaming-trap`), air-gapped |
 
 **Iteration 2 earned its keep.** The trap surfaced (a) a **false premise in the eval** — expectation 4 claimed
 `HTTPTransportPreHook` runs "after auth" on v1.6.3, when it runs *before*; and (b) a **real defect in the
@@ -40,8 +43,8 @@ skill** — `SKILL.md` carried that same "after auth" label. Both were corrected
 
 ### Iteration 4 — the discriminating round
 
-Same three knowledge evals (2–4), but both configurations were barred from the web and the Go module cache, so
-the only difference between them was the skill:
+The three knowledge evals (2–4) with both configurations barred from the web and the Go module cache, so the
+only difference between them was the skill:
 
 | Eval | with_skill | without_skill | Delta |
 | --- | --- | --- | --- |
@@ -53,7 +56,14 @@ the only difference between them was the skill:
 The baseline failed for real reasons: it chose `PreLLMHook` for routing (and believed its provider/model
 mutations stick), never named `HTTPTransportStreamChunkHook`, invented a
 `PreRequestHook(ctx, *http.Request)` signature, and misdiagnosed the nil-read as a context-scope bug rather
-than an ordering one. The skill answered all of it from its own references.
+than an ordering one.
+
+### Iteration 5 — redaction eval
+
+`redaction-hooks-and-streaming-trap`, air-gapped. Both configurations got the three hooks right and both
+explained the chunk-boundary leak — non-discriminating. The only visible difference is that the with-skill run
+cited the exact pinned `HTTPTransportStreamChunkHook` signature where the baseline hedged ("approximate /
+unverified"). Worth keeping as a *correctness* check even though it doesn't separate the configurations.
 
 ## Finding
 
@@ -63,5 +73,9 @@ not whether the skill *helps*. Iteration 4 removed those affordances and the ski
 and clear: **+83 pp overall**. The skill's value is exactly the non-obvious, hard-won facts — hook selection,
 ordering traps, the drop-chunk contract, docs-vs-pin drift, host parity.
 
+Iteration 5 shows the limit: some capabilities (like multi-hook redaction) a strong model knows unaided, so no
+amount of air-gapping will separate them. Only evals whose answers are *hard to reconstruct* discriminate.
+
 The harness default (source + web available) therefore *understates* the value of a knowledge skill like this
-one; the air-gapped configuration is the meaningful measurement.
+one; the air-gapped configuration is the meaningful measurement — and even then, only for the non-obvious
+material.

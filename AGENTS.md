@@ -12,7 +12,9 @@ itself — the deliverable is `SKILL.md` at the root. A complete, tested plugin 
 - `SKILL.md` — the skill: YAML frontmatter (`name`, `description`) + the teaching body.
 - `references/` — on-demand docs: `plugin-architecture.md`, `hooks-reference.md`,
   `lifecycle-and-config.md`, `versioning.md`, `gotchas.md`, `official-docs.md`.
-- `assets/example-plugin/` — the example plugin; **its own Go module**.
+- `assets/example-plugin/` — the minimal example plugin; **its own Go module**.
+- `assets/redactor-plugin/` — a second example (request, response, and streaming redaction) exercising
+  `PreLLMHook`, `PostLLMHook`, and `HTTPTransportStreamChunkHook`; **its own Go module**.
 - `CONTEXT.md` — glossary (glossary only; no implementation detail).
 - `docs/agents/*` — config consumed by the engineering skills; `docs/adr/` — decisions.
 

@@ -45,7 +45,8 @@ only the hooks you need. Full signatures and return-value contracts are in `refe
 
 1. **Start from the bundled example.** Copy `assets/example-plugin/` to a new directory — it is a complete,
    tested, buildable plugin (`main.go`, `main_test.go`, `go.mod`, `Makefile`, `README.md`). Rename the module
-   in `go.mod` and update `GetName()` to your plugin's name.
+   in `go.mod` and update `GetName()` to your plugin's name. A second example, `assets/redactor-plugin/`,
+   shows a multi-hook plugin that redacts requests, responses, and streamed chunks.
 2. **Depend on core.** `go get github.com/maximhq/bifrost/core@latest` (or pin `@v1.6.3` to match this skill).
 3. **Implement your hooks.** Delete the demo hooks you don't need; keep `GetName` and `Cleanup`. See §4–§5.
 4. **Build.** `make build` (or `CGO_ENABLED=1 go build -buildmode=plugin -o build/my-plugin.so main.go`).
@@ -134,3 +135,4 @@ Read these on demand:
 - `references/versioning.md` — v1.3 / v1.4 / v1.5+ / v2.0 deltas vs the pinned `v1.6.3`.
 - `references/gotchas.md` — nil handling, ordering, pooling/aliasing, build traps.
 - `references/official-docs.md` — canonical doc URLs and the "verify against latest" step.
+- `references/plugin-ideation.md` — a menu of capabilities to build, mapped to hooks.

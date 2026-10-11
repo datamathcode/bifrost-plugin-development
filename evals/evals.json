@@ -55,6 +55,18 @@
         "States that returning `(nil, nil)` from `HTTPTransportStreamChunkHook` drops/filters the chunk.",
         "States the `go.mod` Go version must match the host Bifrost binary's Go version (host parity), so pin 1.26.4, not the docs' 1.27.0."
       ]
+    },
+    {
+      "id": 5,
+      "prompt": "I want to build a Bifrost plugin that redacts secrets and PII before they reach the model provider, redacts them again from the response, and redacts them from streamed responses too. Which hooks do I implement for each of those three jobs, and what is the hard part about redacting streamed chunks specifically?",
+      "expected_output": "`PreLLMHook` redacts the outgoing request (ingress); `PostLLMHook` redacts the response (egress); `HTTPTransportStreamChunkHook` redacts streamed chunks (HTTP transport only). The hard part of streaming is chunk boundaries: a secret split across two chunks (e.g. \"sk-live\" then \"abc123\") matches neither half, so per-chunk redaction leaks it — you need a rolling buffer across chunks, which adds latency.",
+      "files": [],
+      "expectations": [
+        "Names `PreLLMHook` for redacting the outgoing request (ingress).",
+        "Names `PostLLMHook` for redacting the response (egress).",
+        "Names `HTTPTransportStreamChunkHook` for redacting streamed chunks.",
+        "Explains the chunk-boundary problem: a secret split across two chunks matches neither half, so per-chunk redaction leaks it, and fixing it needs a rolling buffer across chunks."
+      ]
     }
   ]
 }

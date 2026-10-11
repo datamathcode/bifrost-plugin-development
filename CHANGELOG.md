@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. Versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `assets/redactor-plugin/` — a second worked example: request (ingress), response (egress), and streaming
+  secret/PII redaction, exercising `PreLLMHook`, `PostLLMHook`, and `HTTPTransportStreamChunkHook`.
+- `references/plugin-ideation.md` — a catalog of Bifrost plugin capabilities, mapped to hooks.
+
 ## [0.2.0] - 2026-10-11
 
 The repository is repurposed from a single reference plugin into a portable **agent skill** that teaches an

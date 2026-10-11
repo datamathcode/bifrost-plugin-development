@@ -1,0 +1,10 @@
+{
+  "plugins": [
+    {
+      "enabled": true,
+      "name": "redactor-plugin",
+      "path": "/absolute/path/to/redactor-plugin.so",
+      "config": {}
+    }
+  ]
+}
