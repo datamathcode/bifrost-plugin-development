@@ -3,13 +3,14 @@
 All notable changes to this project are documented here. Versions follow
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-10-11
 
 ### Added
 
 - `assets/redactor-plugin/` — a second worked example: request (ingress), response (egress), and streaming
   secret/PII redaction, exercising `PreLLMHook`, `PostLLMHook`, and `HTTPTransportStreamChunkHook`.
 - `references/plugin-ideation.md` — a catalog of Bifrost plugin capabilities, mapped to hooks.
+- A fifth eval (`redaction-hooks-and-streaming-trap`) and its air-gapped result.
 
 ## [0.2.0] - 2026-10-11
 
@@ -45,5 +46,6 @@ agent how to build a Bifrost gateway plugin. Recorded in `docs/adr/0001`.
 - Initial release: a native Go `.so` reference plugin for the Bifrost LLM gateway demonstrating the hook
   surface.
 
+[0.3.0]: https://github.com/datamathcode/bifrost-plugin-development/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/datamathcode/bifrost-plugin-development/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/datamathcode/bifrost-plugin-development/releases/tag/v0.1.0
