@@ -13,7 +13,8 @@
         "Setting the request header is done in `HTTPTransportPreHook` (the HTTP-transport pre hook that mutates the incoming request).",
         "A `PostLLMHook` is defined whose signature returns three values: `(*schemas.BifrostResponse, *schemas.BifrostError, error)`.",
         "The build command/step uses `-buildmode=plugin` (with CGO enabled), not a plain `go build`.",
-        "A `config.json` plugins entry (with at least `enabled`, `name`, `path`) is provided or described for loading the plugin."
+        "A `config.json` plugins entry (with at least `enabled`, `name`, `path`) is provided or described for loading the plugin.",
+        "States the built `.so` must match the host Bifrost binary's OS, architecture, and Go version, i.e. that cross-compilation does not work."
       ]
     },
     {
@@ -27,7 +28,20 @@
         "Names `HTTPTransportStreamChunkHook` for rewriting streamed chunks.",
         "States that `HTTPTransportPostHook` is NOT called for streaming responses.",
         "Gives the exact signature `func PreRequestHook(ctx *schemas.BifrostContext, req *schemas.BifrostRequest) error`.",
-        "Gives the exact signature `func HTTPTransportStreamChunkHook(ctx *schemas.BifrostContext, req *schemas.HTTPRequest, chunk *schemas.BifrostStreamChunk) (*schemas.BifrostStreamChunk, error)`."
+        "Gives the exact signature `func HTTPTransportStreamChunkHook(ctx *schemas.BifrostContext, req *schemas.HTTPRequest, chunk *schemas.BifrostStreamChunk) (*schemas.BifrostStreamChunk, error)`.",
+        "States that the HTTP-transport hooks (including `HTTPTransportStreamChunkHook`) only fire when Bifrost is used via `bifrost-http`, not when Bifrost is used as a Go SDK."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "The OSS Bifrost gateway we run is pinned to `github.com/maximhq/bifrost/core v1.6.3`. I want to derive a virtual key from an upstream identity header and set it on the request *before Bifrost authenticates it*, and reject requests that don't carry that header with a 403. Which plugin hook do I implement, and what is its exact signature? I only need the hook name and signature — no code.",
+      "expected_output": "On the pinned core v1.6.3 the pre-authentication seam is `HTTPTransportPreHook` — it runs before authentication on this line. The dedicated `HTTPTransportPreAuthHook`, and the move of `HTTPTransportPreHook` to *after* auth, only arrive in v2.0, which is why the live docs show a different arrangement; an agent that trusts the docs without pinning would wrongly reach for `HTTPTransportPreAuthHook`. So implement `HTTPTransportPreHook`, set the derived key in it, and reject a request with no identity header by returning `&schemas.HTTPResponse{StatusCode: 403}`.",
+      "files": [],
+      "expectations": [
+        "States that on the pinned core v1.6.3 the pre-authentication seam is `HTTPTransportPreHook` (it runs before authentication on this version).",
+        "Names `HTTPTransportPreAuthHook` as the dedicated pre-auth hook that exists only in v2.0+.",
+        "States that `HTTPTransportPreAuthHook` is absent from the pinned core v1.6.3 and cannot be used on it.",
+        "Gives the exact signature `func HTTPTransportPreHook(ctx *schemas.BifrostContext, req *schemas.HTTPRequest) (*schemas.HTTPResponse, error)` and notes the 403 can be returned via a short-circuit `*schemas.HTTPResponse`."
       ]
     }
   ]
