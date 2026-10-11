@@ -14,9 +14,18 @@ This plugin demonstrates all Bifrost hook types:
 ```bash
 # Requires Go 1.26+ (matching Bifrost's Go version)
 # Requires CGO_ENABLED=1
+# A native .so plugin must match the host Bifrost binary's OS, arch, and Go version.
 
+make dev        # development build -> build/bifrost-plugin-development.so
+make build      # optimized build  -> build/bifrost-plugin-development.so
+```
+
+Or build directly, outputting to the same `build/` directory the Makefile uses:
+
+```bash
 go mod tidy
-CGO_ENABLED=1 go build -buildmode=plugin -o bifrost-plugin-development.so main.go
+mkdir -p build
+CGO_ENABLED=1 go build -buildmode=plugin -o build/bifrost-plugin-development.so main.go
 ```
 
 ## Configuration
