@@ -43,6 +43,18 @@
         "States that `HTTPTransportPreAuthHook` is absent from the pinned core v1.6.3 and cannot be used on it.",
         "Gives the exact signature `func HTTPTransportPreHook(ctx *schemas.BifrostContext, req *schemas.HTTPRequest) (*schemas.HTTPResponse, error)` and notes the 403 can be returned via a short-circuit `*schemas.HTTPResponse`."
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "I'm debugging a Bifrost plugin and have three questions. (1) In `HTTPTransportPostHook` I call `ctx.SetValue(key, ...)`, and in `PostLLMHook` I read it back with `ctx.Value(key)` — but it is always nil. Why? (2) For a streaming response I want to drop specific chunks before they reach the client. How do I tell Bifrost to drop a chunk? (3) Our Bifrost binary was built with Go 1.26.4, but the docs told me to put `go 1.27.0` in go.mod. Which should I use?",
+      "expected_output": "(1) It is a read-before-write ordering problem: `HTTPTransportPostHook` runs *after* `PostLLMHook` (post-hooks run in reverse, and the HTTP post phase is later still), so the value is written after it is read — not a broken context. Write it in an earlier phase (`HTTPTransportPreHook` or `PreLLMHook`) instead. (2) Return `(nil, nil)` from `HTTPTransportStreamChunkHook` to drop/filter the chunk. (3) Match the host binary's Go version — pin `go.mod` to the host's 1.26.4, not the docs' 1.27.0 — because a native plugin must be built with the same Go version as the host.",
+      "files": [],
+      "expectations": [
+        "States that the nil read is an ordering problem: `HTTPTransportPostHook` runs after `PostLLMHook`, so the value is written after it is read.",
+        "Recommends writing the value in an earlier phase (`HTTPTransportPreHook` or `PreLLMHook`) so the LLM post-hook can read it.",
+        "States that returning `(nil, nil)` from `HTTPTransportStreamChunkHook` drops/filters the chunk.",
+        "States the `go.mod` Go version must match the host Bifrost binary's Go version (host parity), so pin 1.26.4, not the docs' 1.27.0."
+      ]
     }
   ]
 }
