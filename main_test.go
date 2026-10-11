@@ -91,6 +91,38 @@ func TestContextValueWrittenByEarlierHookIsReadable(t *testing.T) {
 	}
 }
 
+func TestTransportPostHookKeyIsOnlyWrittenByPostHook(t *testing.T) {
+	ctx := newTestContext()
+	req := &schemas.HTTPRequest{Headers: map[string]string{}}
+	resp := &schemas.HTTPResponse{Headers: map[string]string{}}
+
+	// The documented order runs HTTPTransportPreHook, PreRequestHook and PreLLMHook
+	// before HTTPTransportPostHook. PostLLMHook must not depend on the post-hook's
+	// key, so it must not exist yet.
+	if _, err := HTTPTransportPreHook(ctx, req); err != nil {
+		t.Fatalf("HTTPTransportPreHook() error = %v", err)
+	}
+	if err := PreRequestHook(ctx, &schemas.BifrostRequest{}); err != nil {
+		t.Fatalf("PreRequestHook() error = %v", err)
+	}
+	if _, _, err := PreLLMHook(ctx, &schemas.BifrostRequest{}); err != nil {
+		t.Fatalf("PreLLMHook() error = %v", err)
+	}
+	if _, _, err := PostLLMHook(ctx, &schemas.BifrostResponse{}, nil); err != nil {
+		t.Fatalf("PostLLMHook() error = %v", err)
+	}
+	if got := ctx.Value(transportPostHookKey); got != nil {
+		t.Fatalf("transportPostHookKey set before HTTPTransportPostHook ran: %v", got)
+	}
+
+	if err := HTTPTransportPostHook(ctx, req, resp); err != nil {
+		t.Fatalf("HTTPTransportPostHook() error = %v", err)
+	}
+	if got := ctx.Value(transportPostHookKey); got != transportPostHookValue {
+		t.Fatalf("transportPostHookKey not written by HTTPTransportPostHook: got %v", got)
+	}
+}
+
 func TestPostLLMHookReturnsInputsUnchangedAndThreadsError(t *testing.T) {
 	ctx := newTestContext()
 	resp := &schemas.BifrostResponse{}

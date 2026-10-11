@@ -18,15 +18,12 @@ endif
 # Architecture detection
 UNAME_M := $(shell uname -m)
 ifeq ($(UNAME_M),x86_64)
- ARCH = amd64
  HOST_ARCH = amd64
 endif
 ifeq ($(UNAME_M),arm64)
- ARCH = arm64
  HOST_ARCH = arm64
 endif
 ifeq ($(UNAME_M),aarch64)
- ARCH = arm64
  HOST_ARCH = arm64
 endif
 
